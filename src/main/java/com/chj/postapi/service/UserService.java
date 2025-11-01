@@ -5,10 +5,12 @@ import com.chj.postapi.entity.User;
 import com.chj.postapi.httpservice.HttpService;
 import com.chj.postapi.repository.UserRepository;
 import com.chj.postapi.util.JsonUtil;
+import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -22,23 +24,28 @@ public class UserService {
     }
 
 
-    public User saveUserFromHttp() {
-       User user = JsonUtil.fromJsonToEntity(httpService.httpGetUser(), User.class);
-       return userRepository.save(user);
-    }
 
-    public List<User> saveAllUserFromHttp() {
+    @Transactional
+    public void saveAllUserFromHttp() {
         String json = httpService.httpGetMultipleUsers();
         List<User> list = JsonUtil.fromJsonToList(json,"users",User.class);
 
-        for (User user : list) {
-            try {
-                userRepository.saveAndFlush(user);
-            } catch (DataIntegrityViolationException e) {
-                System.out.println("Ignored duplicated Emaiil: " + user.getEmail());
+        for(User user:list){
+            try{
+                user.setId(null);
+                userRepository.save(user);
+            }catch(DataIntegrityViolationException e){
+                System.out.println("Ignored duplicated email:"  + user.getEmail());
             }
         }
-        return list;
+
+
+
+    }
+
+    public User findById(Long id){
+        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+
     }
 
 

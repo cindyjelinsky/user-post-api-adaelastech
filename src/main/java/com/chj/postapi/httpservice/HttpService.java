@@ -58,20 +58,6 @@ public class HttpService {
         }
     }
 
-    public String httpGetUser() {
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://dummyjson.com/users/1"))
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            return response.body();
-
-        } catch (Exception e) {
-            throw new RuntimeException("HttpRequest failed:" + e.getMessage());
-        }
-    }
 
     public String httpGetMultipleUsers() {
 

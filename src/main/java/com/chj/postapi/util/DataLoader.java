@@ -25,14 +25,7 @@ public class DataLoader implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
 
-        User user =  userService.saveUserFromHttp();
-        System.out.println("User saved on DB:" + user);
-
-        List<User> users = userService.saveAllUserFromHttp();
-        System.out.println("Users saved on DB:" + users);
-
-        Post post = postService.savefFromHttp();
-        System.out.println("Post saved on DB:" + post);
+         userService.saveAllUserFromHttp();
 
         List<Post> posts = postService.savefFromJson();
         System.out.println("Posts saved on DB:" + posts);
