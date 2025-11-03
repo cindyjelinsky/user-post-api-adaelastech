@@ -6,9 +6,8 @@ import com.chj.postapi.httpservice.HttpService;
 import com.chj.postapi.repository.PostRepository;
 import com.chj.postapi.util.JsonUtil;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
 import java.util.List;
+
 
 @Service
 public class PostService {
@@ -24,8 +23,6 @@ public class PostService {
     }
 
 
-
-
     public List<Post> savefFromJson() {
         String json = httpService.httpGetMultiple();
         List<Post> list = JsonUtil.fromJsonToList(json, "posts", Post.class);
@@ -33,10 +30,15 @@ public class PostService {
         return list;
     }
 
-    public Post savePost(Post post){
-        User user = userService.findById(post.getUser().getId());
+    public Post savePost(Post post) {
+        User user = userService.findByEmail(post.getUser().getEmail());
         post.setUser(user);
-       return postRepository.save(post);
+        return postRepository.save(post);
+    }
+
+    public List<Post> findPostByUser(String email) {
+        User userExists = userService.findByEmail(email);
+        return postRepository.findByUser(userExists);
     }
 
 
