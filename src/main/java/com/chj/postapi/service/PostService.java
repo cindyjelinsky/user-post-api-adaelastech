@@ -41,5 +41,16 @@ public class PostService {
         return postRepository.findByUser(userExists);
     }
 
+    public void deleteByUser(String email) {
+        User userExists = userService.findByEmail(email);
+        List<Post> posts = postRepository.findByUser(userExists);
+        postRepository.deleteAll(posts);
+    }
+
+    public Post findByIdAndUser(Long postId,String email) {
+        User userExists = userService.findByEmail(email);
+        return postRepository.findByIdAndUserId(postId,userExists.getId()).orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
 
 }

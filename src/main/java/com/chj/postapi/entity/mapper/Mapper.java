@@ -14,6 +14,13 @@ import org.springframework.stereotype.Component;
 public class Mapper {
 
 
+    public void updatePostFromDto(PostRequestDto dto, Post post) {
+        post.setTitle(dto.getTitle());
+        post.setBody(dto.getBody());
+
+    }
+
+
     public  Post postDtoToPost(PostRequestDto postDto){
 
          return  Post.builder()

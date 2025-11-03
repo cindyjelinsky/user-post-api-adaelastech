@@ -42,5 +42,22 @@ public class PostController {
 
     }
 
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAllPost(@RequestParam("email") String email) {
+        postService.deleteByUser(email);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PutMapping("/{postId}")
+    public ResponseEntity<PostResponseDto> updatePost(@RequestBody PostRequestDto postRequestDto, @RequestParam("email") String email, @PathVariable("postId") Long postId) {
+
+        Post existPost = postService.findByIdAndUser(postId, email);
+        mapper.updatePostFromDto(postRequestDto, existPost);
+        Post updatePost = postService.savePost(existPost);
+
+        return ResponseEntity.ok(mapper.postToPostResponseDto(updatePost));
+
+    }
+
 
 }
