@@ -2,6 +2,9 @@ package com.chj.postapi.service;
 
 import com.chj.postapi.entity.Post;
 import com.chj.postapi.entity.User;
+import com.chj.postapi.entity.dto.PostRequestDto;
+import com.chj.postapi.entity.dto.PostResponseDto;
+import com.chj.postapi.entity.mapper.Mapper;
 import com.chj.postapi.httpservice.HttpService;
 import com.chj.postapi.repository.PostRepository;
 import com.chj.postapi.util.JsonUtil;
@@ -15,11 +18,13 @@ public class PostService {
     private final HttpService httpService;
     private final PostRepository postRepository;
     private final UserService userService;
+    private final Mapper mapper;
 
-    public PostService(HttpService httpService, PostRepository postRepository, UserService userService) {
+    public PostService(HttpService httpService, PostRepository postRepository, UserService userService,Mapper mapper) {
         this.httpService = httpService;
         this.postRepository = postRepository;
         this.userService = userService;
+        this.mapper = mapper;
     }
 
 
@@ -30,26 +35,40 @@ public class PostService {
         return list;
     }
 
-    public Post savePost(Post post) {
-        User user = userService.findByEmail(post.getUser().getEmail());
+    public PostResponseDto savePost(PostRequestDto postDto, String email) {
+        User user = userService.findByEmail(email);
+        Post post  = mapper.postDtoToPost(postDto);
         post.setUser(user);
-        return postRepository.save(post);
+        postRepository.save(post);
+        return mapper.postToPostResponseDto(post);
     }
 
-    public List<Post> findPostByUser(String email) {
+    public List<PostResponseDto> findAllPostsByUser(String email) {
         User userExists = userService.findByEmail(email);
-        return postRepository.findByUser(userExists);
+        List<Post> posts = postRepository.findAllByUser_Id(userExists.getId());
+
+        return posts.stream().map(mapper::postToPostResponseDto).toList();
     }
 
-    public void deleteByUser(String email) {
+    public void deleteAll(String email) {
         User userExists = userService.findByEmail(email);
-        List<Post> posts = postRepository.findByUser(userExists);
-        postRepository.deleteAll(posts);
+        postRepository.deleteAllByUser_Id(userExists.getId());
     }
 
     public Post findByIdAndUser(Long postId,String email) {
         User userExists = userService.findByEmail(email);
-        return postRepository.findByIdAndUserId(postId,userExists.getId()).orElseThrow(() -> new RuntimeException("User not found"));
+        return postRepository.findByIdAndUser_Id(postId,userExists.getId()).orElseThrow(() -> new RuntimeException("Post  not found or User Not Found"));
+    }
+
+    public PostResponseDto updatePost(Long postId,PostRequestDto postDto, String email) {
+        User existingUser = userService.findByEmail(email);
+        Post postToUpdate = postRepository.findByIdAndUser_Id(postId,existingUser.getId()).orElseThrow(() -> new RuntimeException("Post Not Found"));
+
+        postToUpdate.setTitle(postDto.getTitle());
+        postToUpdate.setBody(postDto.getBody());
+
+        Post updated  = postRepository.save(postToUpdate);
+        return mapper.postToPostResponseDto(updated);
     }
 
 
