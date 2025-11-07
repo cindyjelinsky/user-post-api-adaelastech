@@ -26,7 +26,6 @@ public class Mapper {
          return  Post.builder()
                 .title(postDto.getTitle())
                 .body(postDto.getBody())
-                .user(postDto.getUser())
                 .build();
 
     }
